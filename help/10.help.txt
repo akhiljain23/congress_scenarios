@@ -1,4 +1,26 @@
 wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
 openstack image create --container-format bare --disk-format qcow2 --file cirros-0.4.0-x86_64-disk.img cirros-ind
+openstack image create --container-format bare --disk-format qcow2 --file cirros-0.4.0-x86_64-disk.img cirros-jp
+openstack image set --tag japan cirros-jp
+
+neutron floatingip-create public 
+neutron net-delete test_internal
+neutron net-create test_internal
+neutron subnet-create test_internal 10.0.0.0/24 --name test_internal --gateway 10.0.0.1 --enable-dhcp --allocation-pool start=10.0.0.2,end=10.0.0.254 --dns-nameserver 8.8.8.8
+
+neutron router-create test_router
+
+neutron router-gateway-set test_router public
+
+neutron router-interface-add test_router subnet=test_internal
+
+neutron security-group-create dmz
+
+neutron security-group-rule-create --direction ingress dmz
+openstack server create --flavor 1 --image cirros-jp --network test_internal cirros1
+openstack server add security group cirros1 japan-sg
+openstack server add floating ip cirros123 172.24.4.6
 
 
+openstack server create --flavor 1 --image cirros-ind --network test_internal cirros2
+openstack server add security group cirros2 japan-sg
