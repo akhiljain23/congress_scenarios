@@ -7,15 +7,15 @@ rules:
     rule: >
       nec_jp_server(x) :-
         nova:servers(id=x,status='ACTIVE'),
-        neutronv2:ports(id, device_id, status='ACTIVE'),
+        neutronv2:ports(id, device_id),
         neutronv2:security_group_port_bindings(id, sg),
-        neutronv2:security_groups(sg,name='nec_jp')
+        neutronv2:security_groups(sg,name='japan-sg')
   -
     comment: "find NEC_JP VMs which are running images not tagged for “allowed in NEC JP”"
     rule: >
       nec_jp_placement_error(id) :-
         nova:servers(id,name,hostId,status,tenant_id,user_id,image,flavor,az,hh),
-        not glancev2:tags(image,'nec_jp'),
+        not glancev2:tags(image,'japan'),
         nec_jp_server(id)
 
   -
@@ -24,4 +24,3 @@ rules:
       execute[nova:servers.pause(id)] :-
         nec_jp_placement_error(id),
         nova:servers(id,status='ACTIVE')
-
