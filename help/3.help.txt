@@ -1,0 +1,27 @@
+source openrc admin admin
+openstack image create --container-format bare --disk-format qcow2 --file cirros-0.4.0-x86_64-disk.img cirros
+openstack image create --container-format bare --disk-format qcow2 --file cirros-0.4.0-x86_64-disk.img cirros-bridging
+openstack image set --tag bridging-authorized cirros-bridging
+neutron net-create test_admin
+neutron subnet-create test_admin 10.0.0.0/24 --name test_admin --gateway 10.0.0.1 --enable-dhcp --allocation-pool start=10.0.0.2,end=10.0.0.254 --dns-nameserver 8.8.8.8
+neutron net-create test_dmz
+neutron subnet-create test_dmz 10.0.1.0/24 --name test_dmz --gateway 10.0.1.1 --enable-dhcp --allocation-pool start=10.0.1.2,end=10.0.1.254 --dns-nameserver 8.8.8.8
+openstack image list
+# attach both test_admin and test_dmz networks
+openstack server create --flavor 1 --image cirros --nic net-id=938a17f2-6a8d-424d-8ca1-258c3950141e --nic net-id=3c5d6e8d-4e11-4655-9e8f-2621558d9c58 cirros1
+
+openstack server create --flavor 1 --image cirros-bridging --nic net-id=938a17f2-6a8d-424d-8ca1-258c3950141e --nic net-id=3c5d6e8d-4e11-4655-9e8f-2621558d9c58 cirros2
+
+openstack congress policy create test
+
+openstack congress policy rule create test 'dmz_connected(x) :- neutronv2:ports(network_id=z, device_id=x), neutronv2:networks(id=z, tenant_id=w, name="test_dmz"), keystonev3:projects(enabled, description, name="admin", id=w)' --name dmz_connected
+openstack congress policy row list test dmz_connected
+openstack congress policy rule create test 'admin_connected(x) :- neutronv2:ports(network_id=z, device_id=x), neutronv2:networks(id=z, tenant_id=w, name="test_admin"), keystonev3:projects(enabled, description, name="admin", id=w)' --name admin_connected
+openstack congress policy row list test admin_connected
+openstack congress policy rule create test 'dmz_admin_connected(x) :- dmz_connected(x), admin_connected(x)' --name dmz_admin_connected
+openstack congress policy row list test dmz_admin_connected
+openstack congress policy rule create test 'dmz_admin_bridging_error(id) :- dmz_admin_connected(id), nova:servers(id,image_id=y), not glancev2:tags(y,"bridging-authorized")' --name dmz_admin_bridging_error
+openstack congress policy row list test dmz_admin_bridging_error
+openstack server list
+openstack congress policy rule create test 'execute[nova:servers.pause(id)] :- dmz_admin_bridging_error(id), nova:servers(id,status="ACTIVE")' --name paused_dmz_admin_bridging_error
+openstack server list

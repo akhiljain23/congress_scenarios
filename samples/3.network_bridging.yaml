@@ -8,14 +8,14 @@ rules:
       dmz_connected(x) :-
         neutronv2:ports(network_id=z, device_id=x),
         neutronv2:networks(id=z, tenant_id=w, name="test_dmz"),
-        keystone:tenants(enabled, desc, name="admin", id=w)
+        keystonev3:projects(enabled, description, name="admin", id=w)
   -
     comment: "Create admin_connected rule"
     rule: >
       admin_connected(x) :-
         neutronv2:ports(network_id=z, device_id=x),
         neutronv2:networks(id=z, tenant_id=w, name="test_admin"),
-        keystone:tenants(enabled, desc, name="admin", id=w)
+        keystonev3:projects(enabled, description, name="admin", id=w)
   -
     comment: "Create dmz_admin_connected rule"
     rule: >
