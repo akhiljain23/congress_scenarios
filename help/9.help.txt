@@ -1,0 +1,12 @@
+neutron net-create test_internal
+neutron subnet-create test_internal 10.0.0.0/24 --name test_internal --gateway 10.0.0.1 --enable-dhcp --allocation-pool start=10.0.0.2,end=10.0.0.254 --dns-nameserver 8.8.8.8
+neutron security-group-create sg1
+openstack server create --flavor 1 --image cirros-0.4.0-x86_64-disk --network test_internal --security-group sg1 sg-vm
+openstack volume create --size 1 unencrypted-volume
+openstack server add volume sg-vm 9d4ea030-c3b2-46cc-a227-f7397524a172
+openstack server list
+openstack congress policy list
+openstack congress policy show SecurityGroups
+openstack congress policy rule list SecurityGroups
+openstack congress policy row list SecurityGroups unprotected_servers
+

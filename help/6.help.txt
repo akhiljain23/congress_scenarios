@@ -1,0 +1,5 @@
+openstack security group create test_sg --description "test security group"
+
+openstack security group rule create test_sg --protocol tcp --dst-port 25:25 --remote-ip 0.0.0.0/0
+
+

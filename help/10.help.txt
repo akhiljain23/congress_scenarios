@@ -14,12 +14,12 @@ neutron router-gateway-set test_router public
 
 neutron router-interface-add test_router subnet=test_internal
 
-neutron security-group-create dmz
+neutron security-group-create japan-sg
 
-neutron security-group-rule-create --direction ingress dmz
+neutron security-group-rule-create --direction ingress japan-sg
 openstack server create --flavor 1 --image cirros-jp --network test_internal cirros1
 openstack server add security group cirros1 japan-sg
-openstack server add floating ip cirros123 172.24.4.6
+openstack server add floating ip cirros1 172.24.4.6
 
 
 openstack server create --flavor 1 --image cirros-ind --network test_internal cirros2
