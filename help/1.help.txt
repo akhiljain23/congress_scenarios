@@ -1,3 +1,0 @@
-openstack congress policy rule create test "monasca_alarm(value) :- monasca_webhook:alarm_notification(alarm_id=x, state='ALARM'), monasca_webhook:alarms.metrics(alarm_id=x, dimensions=dim), monasca_webhook:alarms.metrics.dimensions(id=dim, key='hostname', value=value)"
-
-openstack congress policy rule create test "nova_server(ips) :- monasca_alarm(value), nova:servers(id=n_id, host_name=value), nova:servers.addresses(server_id=n_id, address=ips)"

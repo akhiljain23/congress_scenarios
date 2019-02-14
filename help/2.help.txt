@@ -1,0 +1,52 @@
+source openrc admin admin
+
+openstack vim list
+openstack vnf descriptor list
+openstack vnf descriptor delete bf56904f-90f2-496d-a108-caf76c34c437
+cd /opt/stack/tacker/samples/tosca-templates/vnfd/
+ls
+openstack vnf descriptor create --vnfd-file tosca-vnfd-hello-world.yaml samplevnfd
+openstack vnf create --vnfd-name samplevnfd sample-vnf
+nova service-list
+openstack vnf list
+openstack vnf show d4185891-d82a-4694-b2ab-5ddea8b085e7
+openstack server list
+openstack server show 07a48308-e874-4361-977e-ba1b5dd75573
+nova service-list
+nova service-disable 4883e5cd-e286-470a-aa1a-2e9fb7606ca0
+sudo systemctl stop devstack@n-cpu.service 
+monasca metric-list
+monasca metric-statistics load.avg_1_min COUNT -120 --merge_metrics
+monasca notification-create mtest3 WEBHOOK http://192.168.36.13:1789/v1/data-sources/monasca_webhook/webhook
+monasca notification-list
+monasca notification-delete 415caee6-8805-47dc-a3f5-9757c4326b53
+monasca notification-create mtest3 WEBHOOK http://192.168.36.13:1789/v1/data-sources/monasca_webhook/webhook
+monasca alarm-definition-create alarmPerHostAj23 "max(load.avg_1_min) > 0" --match-by hostname --alarm-actions 6037a8dc-04d0-4d12-85ec-502cca1f225e
+monasca alarm-list
+source devstack/openrc admin admin
+nova service-list
+openstack congress policy list
+openstack congress policy create test
+openstack congress policy rule create test "monasca_alarm(value) :- monasca_webhook:alarm_notification(alarm_id=x, state='ALARM'), monasca_webhook:alarms.metrics(alarm_id=x, dimensions=dim), monasca_webhook:alarms.metrics.dimensions(id=dim, key='hostname', value=value)"
+openstack congress policy row list test monasca_alarm
+openstack congress policy rule create test "nova_server(ips, n_id) :- monasca_alarm(value), nova:servers(id=n_id, host_name=value), nova:servers.addresses(server_id=n_id, address=ips)"
+openstack congress policy row list test nova_server
+openstack congress policy rule create test "tacker_vnfs(vnf_id, n_id) :- nova_server(ips, n_id), tacker:vnfs.instances(value=ips, vnf_id=vnf_id), tacker:vnfs(id=vnf_id, status='ACTIVE')"
+openstack congress policy row list test tacker_vnfs
+openstack congress policy rule create test "execute[nova:servers.evacuate(n_id)] :- tacker_vnfs(vnf_id, n_id)"
+openstack server list
+
+Clean up
+376  openstack vnf list
+  377  openstack vnf delete d4185891-d82a-4694-b2ab-5ddea8b085e7
+  378  openstack vnf descriptor list
+  379  openstack vnf descriptor delete 3902823e-5f2e-425e-b1bb-5ab6290d5aa1
+  380  nova service-list
+  381  nova service-enable 4883e5cd-e286-470a-aa1a-2e9fb7606ca0
+  382  sudo systemctl start devstack@n-cpu.service 
+  383  monasca notification-list
+  384  monasca notification-delete 6037a8dc-04d0-4d12-85ec-502cca1f225e
+  385  monasca alarm-definition-list
+  386  monasca alarm-definition-delete d84f87f9-f787-4b8f-a71d-4fd857812468
+  387  monasca alarm-list
+  388  openstack congress policy delete test

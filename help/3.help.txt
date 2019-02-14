@@ -25,3 +25,13 @@ openstack congress policy row list test dmz_admin_bridging_error
 openstack server list
 openstack congress policy rule create test 'execute[nova:servers.pause(id)] :- dmz_admin_bridging_error(id), nova:servers(id,status="ACTIVE")' --name paused_dmz_admin_bridging_error
 openstack server list
+
+openstack server delete cirros2
+openstack server delete cirros1
+openstack network delete test_admin
+openstack network delete test_dmz
+openstack image delete cirros
+openstack image delete cirros-bridging
+openstack congress policy list
+openstack congress policy delete NetworkBridging
+
