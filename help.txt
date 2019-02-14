@@ -1,0 +1,2 @@
+openstack router remove port 2a756357-f29a-47d4-a34d-408be4daa8c0 6bdccc30-94d7-4701-8541-a13d52bd87ad
+

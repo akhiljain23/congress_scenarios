@@ -2,4 +2,6 @@ openstack security group create test_sg --description "test security group"
 
 openstack security group rule create test_sg --protocol tcp --dst-port 25:25 --remote-ip 0.0.0.0/0
 
+openstack server create --flavor 1 --image cirros-0.4.0-x86_64-disk --network public --security-group test_sg sg-vm
+
 

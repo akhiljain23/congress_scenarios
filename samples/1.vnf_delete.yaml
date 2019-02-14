@@ -1,0 +1,34 @@
+---
+name: FaultManagement
+description: "VNF Fault Management: (Monasca-Congress-Tacker)"
+rules:
+  -
+    comment: "abc"
+    rule: >
+      monasca_alarm(value) :-
+        monasca_webhook:alarm_notification(alarm_id=x, state='ALARM'),
+        monasca_webhook:alarms.metrics(alarm_id=x, dimensions=dim),
+        monasca_webhook:alarms.metrics.dimensions(id=dim, key='hostname', value=value)
+  -
+    comment: "abc"
+    rule: >
+      nova_server(ips) :-
+        monasca_alarm(value),
+        nova:servers(id=n_id, status='ACTIVE', host_name=value),
+        nova:servers.addresses(server_id=n_id, address=ips)
+
+  -
+    comment: "abc"
+    rule: >
+      tacker_vnfs(vnf_id) :-
+        nova_server(ips),
+        tacker:vnfs.instances(value=ips, vnf_id=vnf_id),
+        tacker:vnfs(id=vnf_id, status='ACTIVE')
+
+  -
+    comment: "abc"
+    rule: >
+      execute[tacker:delete_vnf(vnf_id)] :-
+        tacker_vnfs(vnf_id)
+
+
